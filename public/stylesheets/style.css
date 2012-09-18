@@ -1,0 +1,42 @@
+body {
+  padding: 10px 30px;
+  font: 16px Helvetica, Arial, sans-serif;
+}
+
+a {
+  color: #00F;
+  text-decoration: none;
+  /*border-bottom: 1px solid #000;*/
+  /*padding-bottom: 1px;*/
+}
+
+div.sites {
+
+}
+
+div.site {
+	padding:20px;
+	/*border:1px solid #F00;*/
+}
+
+a.deleteEntry {
+	padding:0 20px;
+	color: #F00;
+}
+
+form {
+	/*border: 1px solid #CCC;*/
+	/*padding:10px;*/
+}
+
+form input#feed-url {
+	width:375px;
+	height:30px;
+	padding: 0px 5px;
+	font: 16px Helvetica, Arial, sans-serif;
+}
+
+form div{
+	padding:10px;
+	/*border: 1px solid #FCC;*/
+}

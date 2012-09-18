@@ -1,0 +1,14 @@
+extends layout
+
+block content
+ h1= title
+ if error
+  div#error
+  h2= error
+ form( method="post" )
+  div
+   div
+    span URL: 
+     input(type="text", name="url", id="site-url")
+   div#editArticleSubmit
+    input(type="submit", value="Send")

@@ -1,0 +1,14 @@
+extends layout
+
+block content
+ div#container
+  div.sites
+  - each site in sites
+   div(id=site._id).site
+    a( href=site.url, target="_blank", rel=site._id )
+     =site.url
+    a( class="deleteEntry", href="/sites/" + site._id ) Delete
+ ul
+  li
+   a( href="/sites/add" ) Add new site
+  
