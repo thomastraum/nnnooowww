@@ -19,6 +19,17 @@ div.site {
 	/*border:1px solid #F00;*/
 }
 
+div.images {
+	/*border: 1px #999 solid;*/
+	overflow: hidden;
+}
+
+div.image {
+	/*border: 1px solid #F00;*/
+	float:left;
+	padding: 20px;
+}
+
 a.deleteEntry {
 	padding:0 20px;
 	color: #F00;

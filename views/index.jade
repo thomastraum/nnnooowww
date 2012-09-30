@@ -2,5 +2,8 @@ extends layout
 
 block content
  div#container
-
-  
+ div#images
+  - each image in images
+    div.image
+     a( class="imagelink", href=image.url, target="_blank", rel=image._id ) 
+      img( src=""+ image.url, width=image.thumb_width, height=image.thumb_height )

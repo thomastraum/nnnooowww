@@ -4,16 +4,31 @@
  */
 
 var express = require('express')
+	, mongoose = require('mongoose')
+	, models = require('./models')
 	, routes = require('./routes')
 	, http = require('http')
-	, path = require('path');
+	, path = require('path')
+	, crawl = require('./tt/tt_crawl.js')
+	, parser = require('./parser.js')
+	, config = require( './config.js')
+	, tt_image = require('./tt/tt_image.js')
+	, Site
+	, ImageModel
+	, schedule = require('node-schedule');
+	// , schedule = require('./schedule.js');
 
-var app = express();
+// this make app global and we can access global settings everywhere //
+app = express();
 
 app.configure(function(){
 	app.set('port', process.env.PORT || 3000);
 	app.set('views', __dirname + '/views');
 	app.set('view engine', 'jade');
+
+	app.set( 'Site', '');
+	app.set( 'ImageModel', '');
+
 	app.use(express.favicon());
 	app.use(express.logger('dev'));
 	app.use(express.bodyParser());
@@ -27,6 +42,15 @@ app.configure('development', function(){
   // app.set('db-uri', 'mongodb://localhost/nowdev');
 });
 
+//--------------------------------------------------------------- MODELS
+models.defineModels( mongoose, function() {
+
+	app.Site = Site = mongoose.model('Site');
+	app.ImageModel = ImageModel = mongoose.model('ImageModel');
+	mongoose.connect('mongodb://localhost/nowdev');
+
+});
+
 //--------------------------------------------------------------- ROUTES
 app.get('/', routes.index);
 app.get( '/sites', routes.sites);
@@ -34,6 +58,67 @@ app.get( '/sites/add', routes.sitesAddGet);
 
 app.post( '/sites/add', routes.sitesAddPost);
 app.delete( '/sites/:id', routes.sitesDeleteSite );
+
+//--------------------------------------------------------------- CRAWLING
+var startCrawl = function () 
+{
+	Site.find({}).exec( function (err, sites) {
+
+		// console.log( "sites.length " + sites.length );
+
+		if (err) throw err;
+		sites.forEach( function(site){
+
+			crawl.crawlSite( site.url, 0, function( err, html, site) {
+
+				if (err) throw err;
+				parser.parseHtmlForImages( html, function(err, imagesData) {
+
+					if (err) throw err; //console.log(err);
+					else { 
+						imagesData.forEach( function(imageData) {
+
+							var thumb_size = tt_image.calculateThumbSize( { width: imageData.width, height:imageData.height } );
+
+							var image = new app.ImageModel({
+								url		:imageData.src,
+								updated : new Date,
+								width 	: imageData.width,
+								height 	: imageData.height,
+								thumb_width : thumb_size.width,
+								thumb_height : thumb_size.height
+							});
+
+							image.save(function (err, imageEntry) {
+								if( err ) {
+									// console.log("old"); 
+								} else {
+									console.log( "new" ); //imageEntry );
+								}
+							});
+						});
+					}
+				});
+			});
+
+		});
+
+
+	});
+}
+
+// startCrawl();
+
+//--------------------------------------------------------------- SCHEDULE
+var rule = new schedule.RecurrenceRule();
+rule.hour = null;
+rule.minute = null;
+rule.seconds = 59;
+
+var j = schedule.scheduleJob( rule, function(){	
+	console.log("schedule");
+	startCrawl();
+});
 
 //--------------------------------------------------------------- Server
 http.createServer(app).listen(app.get('port'), function(){

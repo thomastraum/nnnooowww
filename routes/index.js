@@ -1,43 +1,27 @@
 //--------------------------------------------------------------- REQUIRE
-
-var mongoose = require('mongoose')
-  , util = require('util')
-  , check = require('validator').check
-  , models = require('../models')
-  , db
-  , Site;
-
-//--------------------------------------------------------------- MODELS
-
-models.defineModels( mongoose, function() {
-
-	Site = mongoose.model('Site');
-	db = mongoose.connect('mongodb://localhost/nowdev');
-
-	var mysite = new Site({
-		url:"http://ficken.com",
-		updated : new Date
-	});
-
-});
+var util = require('util')
+	, config = require( '../config.js')
+  	, check = require('validator').check;
 
 //--------------------------------------------------------------- ROUTES:INDEX
-
 exports.index = function(req, res)
-{		
-	res.render('index.jade', { 
-         title: 'index'
-    });
+{	
+	app.ImageModel.find({}).sort({ updated: -1 }).limit(config.itemsperpage).exec( function( err, images){
+
+		res.render('index.jade', { 
+        	title: 'index',
+        	images: images
+    	});
+
+	});
 };
 
 //--------------------------------------------------------------- ROUTES:SITES
 exports.sites = function(req, res)
 {
-	Site.find().exec( function (err, sites) {
+	app.Site.find({}).exec( function (err, sites) {
 
 		if (err) return console.error(err);
-		console.log('%s', sites );
-
 		res.render( 'sites.jade', {
 			title : "All Sites",
 			sites : sites
@@ -63,13 +47,13 @@ exports.sitesAddPost = function (req,res)
 		check( req.param('url') ).isUrl();
 	} catch( e ) {
 		return res.render('sites_add.jade', { 
-		    title: 'Add new Feed',
+		    title: 'Add new Site',
 		    error: "Couldn't save feed: " + e.message
 	    });
 	}
 
 	// Passed validation try to save to DB //
-	var mysite = new Site({
+	var mysite = new app.Site({
 		url:req.param('url'),
 		updated : new Date
 	});
@@ -77,7 +61,7 @@ exports.sitesAddPost = function (req,res)
 	mysite.save(function (err) {
 		if( err ) {
 			res.render('sites_add.jade', { 
-			  title: 'Add new Feed',
+			  title: 'Add new Site',
 			  error: "Couldn't save site: " + err
 			});
 		} else {
@@ -89,7 +73,7 @@ exports.sitesAddPost = function (req,res)
 //---------------------------------------------------------------
 exports.sitesDeleteSite = function (req,res) 
 {
-	return Site.findById(req.params.id, function (err, site) {
+	return app.Site.findById(req.params.id, function (err, site) {
 		return site.remove(function (err) {
 			if (err) {
 				console.log(err);

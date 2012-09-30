@@ -1,28 +1,11 @@
 
-// var databaseUrl = "nnnooowww"; // "username:password@example.com/mydb"
-// var collections = ["images", "sites" ];
-// var db = require("mongojs").connect(databaseUrl, collections);
-
-// var fs = require('fs')
-  // , config = 	require( './config.js' );
-  // , tt_image = 	require( './tt/tt_image.js');
-
-// var mongoose = require('mongoose');
-// var db = mongoose.createConnection('localhost', 'nnnooowww');
-
-//------------------------------------------------------------------- Setup
-// db.on('error', console.error.bind(console, 'connection error:'));
-// db.once('open', function () {
-
-var Site;
-
 //------------------------------------------------------------------- Models
-
 function defineModels( mongoose, callback ) {
 
 	var Schema = mongoose.Schema;
     var ObjectId = Schema.ObjectId;
 
+    //--------------------------------------------------------------- SITE
 	var Site = new Schema({
 		url: {type:String, index: {unique: true} },
 		updated: { type: Date, default: Date.now }
@@ -33,6 +16,18 @@ function defineModels( mongoose, callback ) {
     });
 
 	mongoose.model('Site', Site);
+
+    //--------------------------------------------------------------- IMAGE
+	var ImageModel = new Schema({
+		url: {type:String, index: {unique: true} },
+		updated: { type: Date, default: Date.now },
+		width: {type:Number},
+		height: {type:Number},
+		thumb_width : {type:Number},
+		thumb_height : {type:Number}
+	});
+
+	mongoose.model( 'ImageModel', ImageModel );
 
 	callback();
 };
