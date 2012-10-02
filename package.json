@@ -17,6 +17,7 @@
     "mongoose": "",
     "validator":"",
     "cheerio":"",
-    "node-schedule":""
+    "node-schedule":"",
+    "socket.io":""
   }
 }

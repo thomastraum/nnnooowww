@@ -13,6 +13,7 @@ var express = require('express')
 	, parser = require('./parser.js')
 	, config = require( './config.js')
 	, tt_image = require('./tt/tt_image.js')
+	, now_socket = require('./now_socket.js')
 	, Site
 	, ImageModel
 	, schedule = require('node-schedule');
@@ -94,6 +95,7 @@ var startCrawl = function ()
 									// console.log("old"); 
 								} else {
 									console.log( "new" ); //imageEntry );
+									now_socket.sendToClients( imageEntry );
 								}
 							});
 						});
@@ -107,7 +109,7 @@ var startCrawl = function ()
 	});
 }
 
-// startCrawl();
+startCrawl();
 
 //--------------------------------------------------------------- SCHEDULE
 var rule = new schedule.RecurrenceRule();
@@ -121,6 +123,13 @@ var j = schedule.scheduleJob( rule, function(){
 });
 
 //--------------------------------------------------------------- Server
-http.createServer(app).listen(app.get('port'), function(){
+
+var server = require('http').createServer(app);
+server.listen(app.get('port'), function(){
 	console.log("Express server listening on port " + app.get('port'));
 });
+
+//--------------------------------------------------------------- Start Socket
+var io = now_socket.startSocket( server );
+
+

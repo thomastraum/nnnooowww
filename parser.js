@@ -16,8 +16,8 @@ exports.parseHtmlForImages = function( _html, _callback )
 			return;
 		}
 		
-	    if ( img.attribs.width > config.image_min_height  
-	    		|| img.attribs.height > config.image_min_width ) {
+	    if ( img.attribs.width > config.image_min_width 
+	    		|| img.attribs.height > config.image_min_height ) {
 
 		    var img_url = img.attribs.src.toString();
 		    var img_width = img.attribs.width;
