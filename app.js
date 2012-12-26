@@ -114,8 +114,8 @@ startCrawl();
 //--------------------------------------------------------------- SCHEDULE
 var rule = new schedule.RecurrenceRule();
 rule.hour = null;
-rule.minute = null;
-rule.seconds = 59;
+rule.minute = 20;
+rule.seconds = 0;
 
 var j = schedule.scheduleJob( rule, function(){	
 	console.log("schedule");
