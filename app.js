@@ -9,10 +9,13 @@ var express = require('express')
 	, routes = require('./routes')
 	, http = require('http')
 	, path = require('path')
+	, fs = require('fs')
+	, url = require('url')
 	, crawl = require('./tt/tt_crawl.js')
 	, parser = require('./parser.js')
 	, config = require( './config.js')
 	, tt_image = require('./tt/tt_image.js')
+	, tt_utils = require('./tt/tt_utils.js')
 	, now_socket = require('./now_socket.js')
 	, Site
 	, ImageModel
@@ -65,8 +68,6 @@ var startCrawl = function ()
 {
 	Site.find({}).exec( function (err, sites) {
 
-		// console.log( "sites.length " + sites.length );
-
 		if (err) throw err;
 		sites.forEach( function(site){
 
@@ -75,37 +76,92 @@ var startCrawl = function ()
 				if (err) throw err;
 				parser.parseHtmlForImages( html, function(err, imagesData) {
 
-					if (err) throw err; //console.log(err);
-					else { 
+					if (err) throw err;
+					else {
 						imagesData.forEach( function(imageData) {
 
-							var thumb_size = tt_image.calculateThumbSize( { width: imageData.width, height:imageData.height } );
+							app.ImageModel.exists( imageData.src, function(err, exists) {
 
-							var image = new app.ImageModel({
-								url		:imageData.src,
-								updated : new Date,
-								width 	: imageData.width,
-								height 	: imageData.height,
-								thumb_width : thumb_size.width,
-								thumb_height : thumb_size.height
-							});
+								if ( err ) console.log( "exists: ", err );
+								if (!exists) {
 
-							image.save(function (err, imageEntry) {
-								if( err ) {
-									// console.log("old"); 
-								} else {
-									console.log( "new" ); //imageEntry );
-									now_socket.sendToClients( imageEntry );
+									// image has width and height defined and it is bigger than the minimum
+									if (typeof imageData.width !== "undefined" && typeof imageData.height !== "undefined" ) {
+										if (imageData.width > config.image_min_width || imageData.height > config.image_min_width ) {
+											tt_utils.downloadFileFromURL(imageData.src, function( err, filepath ){
+												if (err) {console.log( err )}
+												else {
+													saveImage(imageData, {width:imageData.width, height:imageData.height}, function(err, imageEntry ){
+														if (err) console.log(err);
+														else {
+															console.log( "new without download check" ); //imageEntry );
+															now_socket.sendToClients( imageEntry );
+														}
+													});
+												}
+											});
+										}
+									} else {
+									// we need to download the image first and then check its size 								
+										tt_utils.downloadFileFromURL(imageData.src, function( err, filepath ){
+											if (err) {console.log( err )}
+											else {
+												tt_image.getImageSize( filepath, function(err, size) {
+													if (err) console.log( err );
+													else {
+														if (size.width > config.image_min_width || size.height > config.image_min_width ) {
+															saveImage(imageData, size, function(err, imageEntry ){
+																if (err) console.log(err);
+																else {
+																	console.log( "new" ); //imageEntry );
+																	now_socket.sendToClients( imageEntry );
+																}
+															});
+														} else {
+															console.log( "image too small: ", size );
+															fs.unlink(filepath, function (err) {
+																// if (err) console.log(err);
+																// else console.log('successfully deleted');
+															});
+														}
+													};
+												});
+											}
+										});
+									}
 								}
-							});
+							} );
+
+							
 						});
 					}
 				});
 			});
-
 		});
+	});
+}
 
+var saveImage = function(imageData, size, callback )
+{
 
+	// var thumb_size = tt_image.calculateThumbSize( { width: imageData.width, height:imageData.height } );
+
+	var image = new app.ImageModel({
+		url		: imageData.src,
+		site 	: url.parse( imageData.src ).hostname.toString(),
+		updated : new Date,
+		width 	: size.width,
+		height 	: size.height
+		// thumb_width : thumb_size.width,
+		// thumb_height : thumb_size.height
+	});
+
+	image.save(function (err, imageEntry) {
+		if( err ) {
+			callback(err);
+		} else {
+			callback(null, imageEntry);
+		}
 	});
 }
 

@@ -1,9 +1,17 @@
 
 var gm = require('gm')
+	, path = require('path')
 	, config = require( '../config.js')
 	, tt_utils = require( './tt_utils.js');
 
-function getImageSize( file_path, callback )
+function makeThumbName( file_path )
+{
+	var name = path.basename( file_path );
+	var file_ext = tt_utils.getExtension(name);
+	return name.slice( 0, -(file_ext.length) ) + '.' + config.thumbs.ext + file_ext;
+}
+
+exports.getImageSize = function( file_path, callback )
 {
 	// obtain the size of an image
 	gm( file_path )
@@ -16,14 +24,7 @@ function getImageSize( file_path, callback )
 	});
 }
 
-function makeThumbName( file_path )
-{
-	var name = path.basename( file_path );
-	var file_ext = tt_utils.getExtension(name);
-	return name.slice( 0, -(file_ext.length) ) + '.' + config.thumbs.ext + file_ext;
-}
-
-function makeThumbnail( file_path, original_size, callback)
+exports.makeThumbnail = function ( file_path, original_size, callback)
 {
     var thumb_path = path.join( __dirname, 'public', 'thumbs', makeThumbName(file_path) );
     var thumb_size = calculateThumbSize( original_size );
@@ -51,5 +52,22 @@ exports.calculateThumbSize = function( original_size, callback )
 	return {width: thumb_width, height: thumb_height };
 }
 
-exports.getImageSize = getImageSize;
-exports.makeThumbnail = makeThumbnail;
+exports.hasImageExtension = function( string )
+{
+	var imageExtensions = [
+		'.jpg'
+		, '.gif'
+		, '.jpeg'
+		, '.png'
+	];
+
+	var extension = path.extname( string );
+	
+	for (var i = imageExtensions.length - 1; i >= 0; i--) {
+		if (imageExtensions[i] == extension) {
+			return true;
+		};
+	};
+
+	return false;
+}

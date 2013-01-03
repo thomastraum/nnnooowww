@@ -1,5 +1,6 @@
 
 var http = require('http')
+	, request = require('request')
 	, path = require('path')
 	, url = require( 'url' )
 	, config = require( '../config.js')
@@ -10,32 +11,17 @@ var sites = [];
 
 var downloadPage = function ( _site, callback)
 {
-
 	console.log ( 'downloading: ', _site );
-	// console.log( "url_parsed.path ", url_parsed.path );
-	// console.log( "url_parsed.host ", url_parsed.host );
 
-	var request = http.get(_site, function(res){
-
-		var html = '';
-
-	    res.on('data', function(chunk){
-	        html += chunk;
-	    })
-
-	    res.on('end', function(e){
-	    	setTimeout( 
-	    		function() {
-	    			callback( null, html );
-	    		}
-	    		, config.timeout 
-	    	);
-	    })
-
-	}).on('error', function(e) {
-		console.error( e.message, " ", url ); // callback( e.message, null, _site);
+	request( _site, function (error, response, body) {
+		if (!error && response.statusCode == 200) {
+			callback( null, body );
+		} else if( error ) {
+			callback(error, null);
+		} else {
+			callback(response.statusCode, null);
+		}
 	});
-
 }
 
 exports.crawlSite = function ( _site, _depth, _callback ) 
@@ -46,17 +32,19 @@ exports.crawlSite = function ( _site, _depth, _callback )
 	var site = { hostname: url.parse(_site).hostname, url : _site, depth : 0 };
 	sites.push( site );
 
+	console.log( "site: ", site );
+
 	// download the 1st page //
 	downloadPage( site.url, function ( err, _html ) {
 		loop( _html, site.url, function( err, html ){
 			_callback( null, html);
-		} );
+		});
 	});
 };
 
 var loop = function( _html, _url, _callback)
 {
-	// console.log( "looping" );
+	console.log( "looping", _url );
 
 	// call to save images 
 	_callback( null, _html );
@@ -70,9 +58,12 @@ var loop = function( _html, _url, _callback)
 			site.depth = site.depth+1;
 			if ( site.depth < 2 ) {
 				crawlPage( _html, _url, function( err, _html ) {
-					loop( _html, _url, _callback );
+					if (err) loop( err, "", _callback);
+					else loop( _html, _url, _callback );
 				});
 			}
+		} else {
+			console.log( "not same host: " + current_host + " " + site.hostname );
 		}
 	});
 };

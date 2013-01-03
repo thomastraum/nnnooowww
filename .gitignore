@@ -7,12 +7,23 @@ lib-cov
 *.pid
 *.gz
 
+#
 pids
 logs
 results
-
-node_modules
+public/images
+public/thumbs
 npm-debug.log
 
-#os x
+# TT
+*.png
+*.jpg
+*.jpeg
+*.gif
+
+# some extra ones
+*.sw?
 .DS_Store
+tmp/*
+log/*
+node_modules/

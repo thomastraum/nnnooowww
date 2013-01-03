@@ -18,6 +18,7 @@
     "validator":"",
     "cheerio":"",
     "node-schedule":"",
-    "socket.io":""
+    "socket.io":"",
+    "request":""
   }
 }

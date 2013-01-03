@@ -1,6 +1,9 @@
+
 var cheerio = require('cheerio')
 	, url = require('url')
-	, config = require('./config.js');
+	, config = require('./config.js')
+	, tt_image = require('./tt/tt_image.js')
+	, path = require('path');
 
 exports.parseHtmlForImages = function( _html, _callback ) 
 {
@@ -11,20 +14,20 @@ exports.parseHtmlForImages = function( _html, _callback )
 
 	imgs.forEach( function( img ) {
 
-		if ( img.attribs.src == null ) {
-			console.log( "img is null" );
-			return;
+		if ( img.attribs.src !== null 
+			&& tt_image.hasImageExtension(img.attribs.src) ) {
+
+			// console.log( "src: " + img.attribs.src );
+
+			var image = {
+				src : img.attribs.src.toString(),
+				width : (typeof img.attribs.width !== "undefined") ? img.attribs.width : undefined,
+				height : (typeof img.attribs.width !== "undefined") ? img.attribs.height : undefined,
+			}
+
+			imagedata.push(image);
+
 		}
-		
-	    if ( img.attribs.width > config.image_min_width 
-	    		|| img.attribs.height > config.image_min_height ) {
-
-		    var img_url = img.attribs.src.toString();
-		    var img_width = img.attribs.width;
-		    var img_height = img.attribs.height;
-
-		    imagedata.push({ src:img_url, width: img_width, height: img_height });
-	    } 
 
 	});
 
@@ -45,15 +48,19 @@ exports.parseHtmlForLinks = function( _html, _site, _callback )
 			var link = 	_anchor.attribs.href;
 
 			if( link.substr( 0, 4) !== 'http') {
+				link = 'http://' + hostname + '/' + link;
+				console.log( "no http:" + link );
 				// has no #
-				if ( link.indexOf("#") == -1 ) {
-					if ( lookForDuplicate( "http://" + hostname + link, valid_links ) != true ) {
-						// console.log( hostname + link );
-						// 
-						valid_links.push( "http://" + hostname + link );
-					}
+			}
+
+			if ( link.indexOf("#") == -1 ) {
+				var full_link = link;
+				if ( lookForDuplicate( full_link, valid_links ) != true ) {
+					// console.log( hostname + link );
+					valid_links.push( full_link );
 				}
 			}
+			// }
 		}
 	});
 
@@ -70,11 +77,3 @@ var lookForDuplicate = function ( _string, _array ) {
 	};
 	return false;
 }
-
-
-
-
-
-
-
-
