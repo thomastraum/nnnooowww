@@ -24,7 +24,7 @@ var downloadPage = function ( _site, callback)
 	});
 }
 
-exports.crawlSite = function ( _site, _depth, _callback ) 
+exports.crawlSite = function ( _site, _callback ) 
 {
 	var max_depth = 2;
 
@@ -37,7 +37,7 @@ exports.crawlSite = function ( _site, _depth, _callback )
 	// download the 1st page //
 	downloadPage( site.url, function ( err, _html ) {
 		loop( _html, site.url, function( err, html ){
-			_callback( null, html);
+			_callback( null, html, site.url);
 		});
 	});
 };

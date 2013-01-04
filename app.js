@@ -11,6 +11,7 @@ var express = require('express')
 	, path = require('path')
 	, fs = require('fs')
 	, url = require('url')
+	, async = require('async')
 	, crawl = require('./tt/tt_crawl.js')
 	, parser = require('./parser.js')
 	, config = require( './config.js')
@@ -64,10 +65,111 @@ app.post( '/sites/add', routes.sitesAddPost);
 app.delete( '/sites/:id', routes.sitesDeleteSite );
 
 //--------------------------------------------------------------- CRAWLING
+
+var getAllSites = function (callback) {
+	Site.find( {}, function (err, sites) {
+		if (err) throw callback(err);
+		// else callback( null, sites);
+		else {
+			sites.forEach( function(site){
+				callback(null, site.url);
+			});
+		}
+	});
+};
+
 var startCrawl = function () 
 {
+	async.waterfall([
+
+		getAllSites,
+
+		crawl.crawlSite,
+
+		parser.parseHtmlForImages,
+
+		function( imagesData, callback){
+			imagesData.forEach( function(imageData ) {
+				callback(null, imageData );	
+			});
+		},
+
+		function( imageData, callback ) {
+			app.ImageModel.exists( imageData.src, function(err, exists) {
+				if ( err ) callback(err);
+				else {
+					if (!exists) callback(null, imageData);
+					else callback("image exists already");
+				}
+			});
+		},
+
+		function(imageData,callback) {
+				// image has width and height defined and it is bigger than the minimum
+				if (typeof imageData.width !== "undefined" && typeof imageData.height !== "undefined" ) {
+					if (imageData.width > config.image_min_width || imageData.height > config.image_min_width ) {
+
+						// console.log("is big enough");
+						tt_utils.downloadFileFromURL(imageData.src, function( err, filepath ){
+							if (err) {
+								console.log( "error downloading " + imageData.src);
+								callback(err);
+							}
+							else {
+								callback( null, imageData );
+							}
+						});
+					} else {
+						callback("not big enough");
+					}
+				} 
+				else {
+				// we need to download the image first and then check its size 
+					// console.log("needs download");
+					// callback("needs download"); //, imageData.src);				
+					tt_utils.downloadFileFromURL(imageData.src, function( err, filepath ){
+						if (err) {callback( err )}
+						else {
+							tt_image.getImageSize( filepath, function(err, size) {
+								if (err) callback( err );
+								else {
+									if (size.width > config.image_min_width || size.height > config.image_min_width ) {
+										imageData.width = size.width;
+										imageData.height = size.height;
+										callback( null, imageData );
+									} else {
+										fs.unlink(filepath, function (err) {
+											if (err) callback(err);
+											else callback('image too small, successfully deleted');
+										});
+									}
+								};
+							});
+						}
+					});
+				}
+		},
+
+		saveImage // (imageData) 
+
+		
+	], function (err, imageEntry) {
+		if (err) console.log(err);
+		else {
+			console.log( "new without download check" ); //imageEntry );
+			console.log(imageEntry);
+			now_socket.sendToClients( imageEntry );
+		}
+	});
+
+
+		/*
 	Site.find({}).exec( function (err, sites) {
 
+		if (err) throw err;
+		sites.forEach(
+
+		);
 		if (err) throw err;
 		sites.forEach( function(site){
 
@@ -139,9 +241,10 @@ var startCrawl = function ()
 			});
 		});
 	});
+*/
 }
 
-var saveImage = function(imageData, size, callback )
+var saveImage = function(imageData, callback )
 {
 
 	// var thumb_size = tt_image.calculateThumbSize( { width: imageData.width, height:imageData.height } );
@@ -150,18 +253,17 @@ var saveImage = function(imageData, size, callback )
 		url		: imageData.src,
 		site 	: url.parse( imageData.src ).hostname.toString(),
 		updated : new Date,
-		width 	: size.width,
-		height 	: size.height
+		width 	: imageData.width,
+		height 	: imageData.height
 		// thumb_width : thumb_size.width,
 		// thumb_height : thumb_size.height
 	});
 
 	image.save(function (err, imageEntry) {
-		if( err ) {
-			callback(err);
-		} else {
-			callback(null, imageEntry);
-		}
+
+		console.log( "saveImage: " + err + " " + imageEntry );
+		if( err ) callback(err);
+		else callback(null, imageEntry);
 	});
 }
 

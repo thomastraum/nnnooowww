@@ -5,7 +5,7 @@ var cheerio = require('cheerio')
 	, tt_image = require('./tt/tt_image.js')
 	, path = require('path');
 
-exports.parseHtmlForImages = function( _html, _callback ) 
+exports.parseHtmlForImages = function( _html, _site_url, _callback ) 
 {
 	var $ = cheerio.load( _html ); 
 	imgs = $('img').toArray();
@@ -14,13 +14,20 @@ exports.parseHtmlForImages = function( _html, _callback )
 
 	imgs.forEach( function( img ) {
 
+
 		if ( img.attribs.src !== null 
 			&& tt_image.hasImageExtension(img.attribs.src) ) {
 
-			// console.log( "src: " + img.attribs.src );
+
+			var imagelink = img.attribs.src.toString();
+
+			if (imagelink.substr(0,4) !== "http") {
+				imagelink = 'http://' + url.parse( _site_url ).hostname.toString() + '/' + imagelink;
+				console.log( "missing http in imagelink: " + imagelink );
+			}
 
 			var image = {
-				src : img.attribs.src.toString(),
+				src : imagelink,
 				width : (typeof img.attribs.width !== "undefined") ? img.attribs.width : undefined,
 				height : (typeof img.attribs.width !== "undefined") ? img.attribs.height : undefined,
 			}
