@@ -113,7 +113,7 @@ var startCrawl = function ()
 						tt_utils.downloadFileFromURL(imageData.src, function( err, filepath ){
 							if (err) {
 								console.log( "error downloading " + imageData.src);
-								callback(err);
+								callback(err, null);
 							}
 							else {
 								callback( null, imageData );
@@ -139,7 +139,7 @@ var startCrawl = function ()
 										callback( null, imageData );
 									} else {
 										fs.unlink(filepath, function (err) {
-											if (err) callback(err);
+											if (err) callback(err, null);
 											else callback('image too small, successfully deleted');
 										});
 									}
@@ -150,121 +150,53 @@ var startCrawl = function ()
 				}
 		},
 
-		saveImage // (imageData) 
+		saveImage,
 
-		
-	], function (err, imageEntry) {
-		if (err) console.log(err);
-		else {
-			console.log( "new without download check" ); //imageEntry );
-			console.log(imageEntry);
+		function (imageEntry, callback) {
+			console.log( "sending to socket");
 			now_socket.sendToClients( imageEntry );
+			callback(null, imageEntry);
+		}
+		
+	], function (err, success ) {
+		console.log( "exited waterfall");
+		console.log(err);
+	});
+
+}
+
+var saveImage = function(imageData, callback ) {
+
+	tt_image.makeThumbnail( path.basename(imageData.src), imageData, function(err, thumb_path, thumb_size ){
+		if (err) {
+			// console.log(err);
+			callback(err, null);
+		} else {
+
+			var image = new app.ImageModel({
+
+				name 		: path.basename( imageData.src ),
+
+				url			: imageData.src,
+				site 		: url.parse( imageData.src ).hostname.toString(),
+				updated 	: new Date,
+				width 		: imageData.width,
+				height 		: imageData.height,
+
+				thumb_name	: path.basename(thumb_path),
+				thumb_width : thumb_size.width,
+				thumb_height: thumb_size.height
+			});
+
+			image.save(function (err, imageEntry) {
+
+				console.log( "saved image");
+				if( err ) callback(err);
+				else callback(null, imageEntry);
+			});
 		}
 	});
 
-
-		/*
-	Site.find({}).exec( function (err, sites) {
-
-		if (err) throw err;
-		sites.forEach(
-
-		);
-		if (err) throw err;
-		sites.forEach( function(site){
-
-			crawl.crawlSite( site.url, 0, function( err, html, site) {
-
-				if (err) throw err;
-				parser.parseHtmlForImages( html, function(err, imagesData) {
-
-					if (err) throw err;
-					else {
-						imagesData.forEach( function(imageData) {
-
-							app.ImageModel.exists( imageData.src, function(err, exists) {
-
-								if ( err ) console.log( "exists: ", err );
-								if (!exists) {
-
-									// image has width and height defined and it is bigger than the minimum
-									if (typeof imageData.width !== "undefined" && typeof imageData.height !== "undefined" ) {
-										if (imageData.width > config.image_min_width || imageData.height > config.image_min_width ) {
-											tt_utils.downloadFileFromURL(imageData.src, function( err, filepath ){
-												if (err) {console.log( err )}
-												else {
-													saveImage(imageData, {width:imageData.width, height:imageData.height}, function(err, imageEntry ){
-														if (err) console.log(err);
-														else {
-															console.log( "new without download check" ); //imageEntry );
-															now_socket.sendToClients( imageEntry );
-														}
-													});
-												}
-											});
-										}
-									} else {
-									// we need to download the image first and then check its size 								
-										tt_utils.downloadFileFromURL(imageData.src, function( err, filepath ){
-											if (err) {console.log( err )}
-											else {
-												tt_image.getImageSize( filepath, function(err, size) {
-													if (err) console.log( err );
-													else {
-														if (size.width > config.image_min_width || size.height > config.image_min_width ) {
-															saveImage(imageData, size, function(err, imageEntry ){
-																if (err) console.log(err);
-																else {
-																	console.log( "new" ); //imageEntry );
-																	now_socket.sendToClients( imageEntry );
-																}
-															});
-														} else {
-															console.log( "image too small: ", size );
-															fs.unlink(filepath, function (err) {
-																// if (err) console.log(err);
-																// else console.log('successfully deleted');
-															});
-														}
-													};
-												});
-											}
-										});
-									}
-								}
-							} );
-
-							
-						});
-					}
-				});
-			});
-		});
-	});
-*/
-}
-
-var saveImage = function(imageData, callback )
-{
-
-	// var thumb_size = tt_image.calculateThumbSize( { width: imageData.width, height:imageData.height } );
-
-	var image = new app.ImageModel({
-		url		: imageData.src,
-		site 	: url.parse( imageData.src ).hostname.toString(),
-		updated : new Date,
-		width 	: imageData.width,
-		height 	: imageData.height
-		// thumb_width : thumb_size.width,
-		// thumb_height : thumb_size.height
-	});
-
-	image.save(function (err, imageEntry) {
-
-		console.log( "saveImage: " + err + " " + imageEntry );
-		if( err ) callback(err);
-		else callback(null, imageEntry);
-	});
 }
 
 startCrawl();

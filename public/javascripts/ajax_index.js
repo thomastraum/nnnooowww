@@ -2,6 +2,8 @@
 
 var addNewImage = function( imageData )
 {
+	console.log( html );
+
 	var html = "<a href='" + imageData.url + "' target='_blank' >"; 
 	html += "<img src='" + imageData.url + "' ";
 	html += "width='" + imageData.thumb_width + "' ";
@@ -10,8 +12,6 @@ var addNewImage = function( imageData )
 
 
 	$("div#images").prepend( html );
-
-	// console.log( html );
 }
 
 

@@ -24,9 +24,10 @@ exports.getImageSize = function( file_path, callback )
 	});
 }
 
-exports.makeThumbnail = function ( file_path, original_size, callback)
+exports.makeThumbnail = function ( file_name, original_size, callback)
 {
-    var thumb_path = path.join( __dirname, 'public', 'thumbs', makeThumbName(file_path) );
+	var file_path = path.resolve( __dirname, '../', 'public', 'images', path.basename(file_name) );
+    var thumb_path = path.resolve( __dirname,  '../', 'public', 'thumbs', makeThumbName(file_path) );
     var thumb_size = calculateThumbSize( original_size );
 
 	gm( file_path )
@@ -38,7 +39,7 @@ exports.makeThumbnail = function ( file_path, original_size, callback)
 	});
 }
 
-exports.calculateThumbSize = function( original_size, callback )
+var calculateThumbSize = function( original_size, callback )
 {
     // calculate proportions 
 	if ( original_size.width >= original_size.height ){

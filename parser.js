@@ -23,7 +23,7 @@ exports.parseHtmlForImages = function( _html, _site_url, _callback )
 
 			if (imagelink.substr(0,4) !== "http") {
 				imagelink = 'http://' + url.parse( _site_url ).hostname.toString() + '/' + imagelink;
-				console.log( "missing http in imagelink: " + imagelink );
+				// console.log( "missing http in imagelink: " + imagelink );
 			}
 
 			var image = {

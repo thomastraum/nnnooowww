@@ -22,6 +22,7 @@ var initOnConnection = function ()
 
 exports.sendToClients = function  ( imageData ) {
 	
+	console.log( "emitting-----------------");
 	io.sockets.emit('newImageEvent', { new_image: imageData});
 	
 }

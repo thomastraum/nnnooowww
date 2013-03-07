@@ -19,13 +19,19 @@ function defineModels( mongoose, callback ) {
 
     //--------------------------------------------------------------- IMAGE
 	var ImageModel = new Schema({
-		url: {type:String, index: {unique: true} },
-		site: {type:String, index: true },
-		updated: { type: Date, default: Date.now },
-		width: {type:Number},
-		height: {type:Number},
-		thumb_width : {type:Number},
-		thumb_height : {type:Number}
+
+		name 			: {type:String, index: {unique: true}},
+		
+		url 			: {type:String, index: {unique: true} },
+		site 			: {type:String, index: true },
+		updated 		: { type: Date, default: Date.now },
+		width 			: {type:Number},
+		height 			: {type:Number},
+
+		thumb_name		: {type:String},
+		thumb_width 	: {type:Number},
+		thumb_height 	: {type:Number}
+		
 	});
 	
 	ImageModel.statics.exists = function( url, callback) {
