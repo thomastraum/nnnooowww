@@ -15,14 +15,12 @@ var initOnConnection = function ()
 	io.sockets.on('connection', function (socket) {
 		socket.emit('news', { hello: 'world' });
 			socket.on('my other event', function (data) {
-			console.log(data);
+			// console.log(data);
 		});
 	});
 }
 
-exports.sendToClients = function  ( imageData ) {
-	
+exports.sendToClients = function( imageData ) {
 	console.log( "emitting-----------------");
 	io.sockets.emit('newImageEvent', { new_image: imageData});
-	
 }

@@ -46,8 +46,10 @@ var loop = function( _html, _url, _callback)
 {
 	console.log( "looping", _url );
 
-	// call to save images 
-	_callback( null, _html );
+	// call to parse html for images 
+	setTimeout( function() {
+		_callback( null, _html );
+	}, 1000);
 
 	// start loop
 	sites.forEach( function(site) {
@@ -55,6 +57,7 @@ var loop = function( _html, _url, _callback)
 		var current_host = url.parse(_url).hostname;
 
 		if ( current_host == site.hostname ) {
+
 			site.depth = site.depth+1;
 			if ( site.depth < 2 ) {
 				crawlPage( _html, _url, function( err, _html ) {

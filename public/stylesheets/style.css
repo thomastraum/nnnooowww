@@ -1,53 +1,75 @@
 body {
-  padding: 10px 30px;
-  font: 16px Helvetica, Arial, sans-serif;
+	padding:0;
+	margin:0;
+	font: 14px "Lucida Grande", Helvetica, Arial, sans-serif;
 }
 
 a {
-  color: #00F;
-  text-decoration: none;
-  /*border-bottom: 1px solid #000;*/
-  /*padding-bottom: 1px;*/
+	color: #00B7FF;
 }
 
-div.sites {
-
-}
-
-div.site {
-	padding:20px;
-	/*border:1px solid #F00;*/
-}
-
-div.images {
-	/*border: 1px #999 solid;*/
-	overflow: hidden;
+div.images{
+	padding: 20px
 }
 
 div.image {
-	/*border: 1px solid #F00;*/
 	float:left;
-	padding: 20px;
+	padding:20px;
 }
 
-a.deleteEntry {
-	padding:0 20px;
-	color: #F00;
+
+/**** Isotope Filtering ****/
+
+.isotope-item {
+  z-index: 2;
 }
 
-form {
-	/*border: 1px solid #CCC;*/
-	/*padding:10px;*/
+.isotope-hidden.isotope-item {
+  pointer-events: none;
+  z-index: 1;
 }
 
-form input#feed-url {
-	width:375px;
-	height:30px;
-	padding: 0px 5px;
-	font: 16px Helvetica, Arial, sans-serif;
+/**** Isotope CSS3 transitions ****/
+
+.isotope,
+.isotope .isotope-item {
+  -webkit-transition-duration: 0.8s;
+     -moz-transition-duration: 0.8s;
+      -ms-transition-duration: 0.8s;
+       -o-transition-duration: 0.8s;
+          transition-duration: 0.8s;
 }
 
-form div{
-	padding:10px;
-	/*border: 1px solid #FCC;*/
+.isotope {
+  -webkit-transition-property: height, width;
+     -moz-transition-property: height, width;
+      -ms-transition-property: height, width;
+       -o-transition-property: height, width;
+          transition-property: height, width;
 }
+
+.isotope .isotope-item {
+  -webkit-transition-property: -webkit-transform, opacity;
+     -moz-transition-property:    -moz-transform, opacity;
+      -ms-transition-property:     -ms-transform, opacity;
+       -o-transition-property:      -o-transform, opacity;
+          transition-property:         transform, opacity;
+}
+
+/**** disabling Isotope CSS3 transitions ****/
+
+.isotope.no-transition,
+.isotope.no-transition .isotope-item,
+.isotope .isotope-item.no-transition {
+  -webkit-transition-duration: 0s;
+     -moz-transition-duration: 0s;
+      -ms-transition-duration: 0s;
+       -o-transition-duration: 0s;
+          transition-duration: 0s;
+}
+
+/* End: Recommended Isotope styles */
+
+.element {  width:150px; height:150px; background-color:#CCC; margin:0 0 20px 0; }
+
+#container { margin: auto; }

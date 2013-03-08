@@ -43,8 +43,6 @@ exports.downloadFileFromURL = function( file_url, callback )
 			callback( 'file not found' +  file_url );
 			return;
 		} 
-		console.log( res.statusCode );
-
 		res.on('data', function(chunk){
 		    imagedata += chunk;
 		})

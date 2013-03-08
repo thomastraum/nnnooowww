@@ -78,8 +78,7 @@ var getAllSites = function (callback) {
 	});
 };
 
-var startCrawl = function () 
-{
+var startCrawl = function () {
 	async.waterfall([
 
 		getAllSites,
@@ -162,7 +161,6 @@ var startCrawl = function ()
 		console.log( "exited waterfall");
 		console.log(err);
 	});
-
 }
 
 var saveImage = function(imageData, callback ) {
