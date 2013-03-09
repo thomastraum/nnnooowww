@@ -167,7 +167,6 @@ var saveImage = function(imageData, callback ) {
 
 	tt_image.makeThumbnail( path.basename(imageData.src), imageData, function(err, thumb_path, thumb_size ){
 		if (err) {
-			// console.log(err);
 			callback(err, null);
 		} else {
 
@@ -184,20 +183,19 @@ var saveImage = function(imageData, callback ) {
 				thumb_name	: path.basename(thumb_path),
 				thumb_width : thumb_size.width,
 				thumb_height: thumb_size.height
+
 			});
 
 			image.save(function (err, imageEntry) {
-
 				console.log( "saved image");
 				if( err ) callback(err);
 				else callback(null, imageEntry);
 			});
 		}
 	});
-
 }
 
-startCrawl();
+// startCrawl();
 
 //--------------------------------------------------------------- SCHEDULE
 var rule = new schedule.RecurrenceRule();
@@ -205,10 +203,10 @@ rule.hour = null;
 rule.minute = 20;
 rule.seconds = 0;
 
-var j = schedule.scheduleJob( rule, function(){	
-	console.log("schedule");
-	startCrawl();
-});
+// var j = schedule.scheduleJob( rule, function(){	
+// 	console.log("schedule");
+// 	startCrawl();
+// });
 
 //--------------------------------------------------------------- Server
 

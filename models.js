@@ -32,14 +32,13 @@ function defineModels( mongoose, callback ) {
 		thumb_width 	: {type:Number},
 		thumb_height 	: {type:Number}
 		
-	});
+	}); //,{ expires: '0' });
 	
 	ImageModel.statics.exists = function( url, callback) {
 		return this.count( {url:url}, callback );
 	};
 
 	mongoose.model( 'ImageModel', ImageModel );
-
 
 	callback();
 };

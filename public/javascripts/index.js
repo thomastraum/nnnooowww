@@ -6,8 +6,8 @@
 		itemSelector : '.element',
 		layoutMode: 'cellsByRow',
 		cellsByRow: {
-			columnWidth: 200,
-			rowHeight: 200
+			columnWidth: 450,
+			rowHeight: 350
 		}
 	});
 
@@ -44,20 +44,14 @@
 		for (var i = 0; i < imagesBuffer.length; i++) {
 			newElements += getHtmlWrapped( imagesBuffer[i] );
 		};
-		newElements  = $(newElements);
-
-		// setTimeout( function() {
-
-			$container
-				.append( newElements ).isotope( 'appended', newElements );
+		$container
+			.append( newElements ).isotope( 'appended', $(newElements) );
 				// .isotope( 'remove', getFirstElements(5) )
 		// }, 1000);
 	}
 
 	//----------------------------------------------------------------------
 	var addNewImage = function( imageData ) {
-
-		console.log( "jo" );
 		
 		var html = "<a href='" + imageData.url + "' target='_blank' >"; 
 		html += "<img src='/thumbs/" + imageData.thumb_name + "' ";

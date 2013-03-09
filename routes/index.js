@@ -6,8 +6,11 @@ var util = require('util')
 //--------------------------------------------------------------- ROUTES:INDEX
 exports.index = function(req, res)
 {	
-	app.ImageModel.find({}).sort({ updated: -1 }).limit(config.itemsperpage).exec( function( err, images){
+	app.ImageModel.find({}).limit(config.itemsperpage).exec( function( err, images){
 
+		console.log( "images.length: ", images.length );
+
+		if (err) return console.error(err);
 		res.render('index.jade', { 
         	title: 'index',
         	images: images
