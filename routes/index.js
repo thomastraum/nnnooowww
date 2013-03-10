@@ -80,7 +80,7 @@ exports.sitesDeleteSite = function (req,res)
 			} else {
 				console.log("removed");
 				res.contentType('json');
-				return res.send( JSON.stringify(site) );
+				return res.redirect("/sites");
 			}
 		});
 	});

@@ -62,7 +62,7 @@ app.get( '/sites', routes.sites);
 app.get( '/sites/add', routes.sitesAddGet);
 
 app.post( '/sites/add', routes.sitesAddPost);
-app.delete( '/sites/:id', routes.sitesDeleteSite );
+app.get( '/sites/delete/:id', routes.sitesDeleteSite );
 
 //--------------------------------------------------------------- CRAWLING
 
