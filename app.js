@@ -202,13 +202,23 @@ startCrawl();
 //--------------------------------------------------------------- SCHEDULE
 var rule = new schedule.RecurrenceRule();
 rule.hour = null;
-rule.minute = 20;
-rule.seconds = 0;
+rule.minute = null;
+rule.seconds = null;
 
 var j = schedule.scheduleJob( rule, function(){	
 	console.log("schedule");
-	startCrawl();
+	// startCrawl();
 });
+
+//--------------------------------------------------------------- debug emitter
+var emitAnImage = function() {
+	app.ImageModel.find({}).limit(20).exec( function(err, imageEntries){
+
+		now_socket.sendToClients( imageEntries[Math.round(Math.random()*imageEntries.length-1)] );
+	})
+}
+
+// setInterval( emitAnImage, 1000);
 
 //--------------------------------------------------------------- Server
 

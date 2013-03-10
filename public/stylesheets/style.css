@@ -89,6 +89,6 @@ div.image {
 
 /* End: Recommended Isotope styles */
 
-.element {  width:450px; height:350px; background-color:#CCC; margin:0 0 20px 0; }
+.element {  width:400px; height:300px; background-color:#CCC; margin:20px; }
 
 #container { margin: auto; }

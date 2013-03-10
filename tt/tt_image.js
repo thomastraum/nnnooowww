@@ -42,7 +42,7 @@ exports.makeThumbnail = function ( file_name, original_size, callback)
 var calculateThumbSize = function( original_size, callback )
 {
     // calculate proportions 
-	if ( original_size.width >= original_size.height ){
+	if ( original_size.width > original_size.height ){
 		var thumb_width = config.thumbs.width;
 		var thumb_height = Math.round( thumb_width * ( original_size.height / original_size.width ) );
 	} else {

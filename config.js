@@ -8,7 +8,7 @@ config.image_min_height = 520;
 
 config.thumbs = {};
 config.thumbs.ext = "thumb";
-config.thumbs.width = 400;
+config.thumbs.width = 350;
 config.thumbs.height = 300;
 config.itemsperpage = 250;
 module.exports = config;

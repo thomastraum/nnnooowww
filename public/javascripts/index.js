@@ -6,8 +6,8 @@
 		itemSelector : '.element',
 		layoutMode: 'cellsByRow',
 		cellsByRow: {
-			columnWidth: 400,
-			rowHeight: 300
+			columnWidth: 450,
+			rowHeight: 350
 		}
 	});
 
@@ -23,6 +23,8 @@
 		return $firstElement;
 	};
 
+
+
 	//----------------------------------------------------------------------
 	var getAllElements = function(){
 
@@ -31,6 +33,13 @@
 		});
 		return $elements;
 	}
+	
+	//----------------------------------------------------------------------
+	var getLastElement = function(){
+		var all = getAllElements();
+		var last = all[all.length-1];
+		return last;
+	};
 
 	//----------------------------------------------------------------------
 	var getHtmlWrapped = function( html ) {
@@ -44,48 +53,42 @@
 		for (var i = 0; i < imagesBuffer.length; i++) {
 			newElements += getHtmlWrapped( imagesBuffer[i] );
 		};
+
 		newElements  = $(newElements);
+		$container
+			.append( newElements ).isotope( 'appended', newElements );
+	}
 
-		// setTimeout( function() {
+	//----------------------------------------------------------------------
+	var checkScroll = function () {
+		// console.log( $(getLastElement()).offset().top );
+		// console.log( $(window).scrollTop()  );
 
-			$container
-				.append( newElements ).isotope( 'appended', newElements );
-				// .isotope( 'remove', getFirstElements(5) )
-		// }, 1000);
+		if ( $(getLastElement()).offset().top > $(window).scrollTop() ) {
+			$('html, body').animate({scrollTop: $(getLastElement()).offset().top}, 100);
+		}
 	}
 
 	//----------------------------------------------------------------------
 	var addNewImage = function( imageData ) {
 
-		console.log( "jo" );
-		
 		var html = "<a href='" + imageData.url + "' target='_blank' >"; 
 		html += "<img src='/thumbs/" + imageData.thumb_name + "' ";
 		html += "width='" + imageData.thumb_width + "' ";
 		html += "height='" + imageData.thumb_height + "' />";
 		html += "</a>";
 
-		console.log( html );
-
-		// eno sample
-		// var html = "";
-		// html += "<img src='" + data.image + "' width='150px' height='150px' >"
-		// html += "<p>" + data.screen_name + "</p>";
-
 		buffer.push( html );
 
 		if (buffer.length > 1 ) {
 			addElements( buffer );
 			buffer = [];
+			checkScroll();
 		}
 	}
 
-	// $('#append a').click(function(){
-	// 	addElements( ["hey","ho","one"] );
-	// });
-
-	$(document).bind( "socketNewImageEvent", function(e, data ){ 
-		console.log( "e: ", data.new_image );
+	//----------------------------------------------------------------------
+	$(document).bind( "socketNewImageEvent", function(e, data ){
 		addNewImage( data.new_image );
 	});
 
