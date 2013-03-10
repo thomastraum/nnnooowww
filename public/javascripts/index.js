@@ -6,8 +6,8 @@
 		itemSelector : '.element',
 		layoutMode: 'cellsByRow',
 		cellsByRow: {
-			columnWidth: 450,
-			rowHeight: 350
+			columnWidth: 400,
+			rowHeight: 300
 		}
 	});
 
